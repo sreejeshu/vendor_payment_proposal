@@ -1,0 +1,6 @@
+"id","name","model_id:id","group_id:id","perm_read","perm_write","perm_create","perm_unlink"
+"access_payment_proposal_billing","Payment.proposal.billing","model_payment_proposal","account.group_account_invoice",1,0,0,0
+"access_payment_proposal_billing_administrator","Payment.proposal.billing.administrator","model_payment_proposal","account.group_account_manager",1,1,1,1
+,,,,,,,
+"access_payment_proposal_line_billing","Payment.proposal.line.billing","model_payment_proposal_line","account.group_account_invoice",1,1,1,1
+"access_payment_proposal_line_billing_administrator","Payment.proposal.line.billing.administrator","model_payment_proposal_line","account.group_account_manager",1,1,1,1

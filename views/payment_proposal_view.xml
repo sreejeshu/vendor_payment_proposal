@@ -1,0 +1,73 @@
+<odoo>
+
+	<record id="view_payment_proposal_form" model="ir.ui.view">
+        <field name="name">payment.proposal.form</field>
+        <field name="model">payment.proposal</field>
+        <field name="arch" type="xml">
+        	<form string="Payment Proposal">
+        		<header>
+                    <button name="action_submit" states="draft" type="object" class="oe_highlight" string="Submit"/>
+                    <button name="action_approve" states="submit" type="object" class="oe_highlight" string="Approve"/>
+                    <button name="action_cancel" states="submit,approve" type="object" class="oe_highlight" string="Cancel"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submit,approve,paid"/>
+                </header>
+                <sheet>
+                	<div class="oe_title">
+                        <h1><field name="name" /></h1>
+                    </div>
+                	<group>
+                		<group>
+                			<field name="date" />
+                			<field name="user_id" />
+                		</group>
+                		<group>
+                			<field name="approved_user_id" />
+                			<field name="approved_date" />
+                		</group>
+                	</group>
+                	<group>
+                		<field name="line_ids">
+                			<tree>
+                				<field name="partner_id"/>
+                				<field name="requested_amt"/>
+                				<field name="sanctioned_amt"/>
+                				<field name="state"/>
+                			</tree>
+                		</field>
+                	</group>
+                </sheet>
+        	</form>
+        </field>
+    </record>
+
+    <record id="view_payment_proposal_tree" model="ir.ui.view">
+        <field name="name">payment.proposal.tree</field>
+        <field name="model">payment.proposal</field>
+        <field name="arch" type="xml">
+        	<tree string="Payment Proposal">
+        		<field name="name" />
+        		<field name="date" />
+        		<field name="user_id" />
+                <field name="company_id" groups="base.group_multi_company"/>
+        		<field name="state" />
+        	</tree>
+        </field>
+    </record>
+
+    <record id="action_view_payment_proposal" model="ir.actions.act_window">
+       <field name="name">Payment Proposal</field>
+       <field name="res_model">payment.proposal</field>
+       <field name="domain">[]</field>
+       <field name="view_mode">tree,form</field>
+       <field name="help">Create Payment Proposal Here.</field>
+   </record>
+
+
+	
+	<!-- Top menu item -->
+    <menuitem id="menu_root_payment_proposal" name="Payment Proposal" parent="account.menu_finance" sequence="3" groups="account.group_account_user"/>
+
+    <menuitem id="menu_payment_proposal" action="action_view_payment_proposal" name="Payment Proposal" parent="account.menu_finance" sequence="3" groups="account.group_account_user"/>
+
+	
+</odoo>
