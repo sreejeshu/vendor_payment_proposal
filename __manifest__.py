@@ -25,6 +25,7 @@
     # always loaded
     'data': [
         'security/ir.model.access.csv',
+        'data/ir_sequence_data.xml',
         'views/payment_proposal_view.xml',
     ],
     # only loaded in demonstration mode

@@ -13,7 +13,7 @@
                 </header>
                 <sheet>
                 	<div class="oe_title">
-                        <h1><field name="name" /></h1>
+                        <h1><field name="name" readonly="1"/></h1>
                     </div>
                 	<group>
                 		<group>
@@ -21,19 +21,37 @@
                 			<field name="user_id" />
                 		</group>
                 		<group>
+                			<field name="company_id" groups="base.group_multi_company"/>
                 			<field name="approved_user_id" />
                 			<field name="approved_date" />
                 		</group>
                 	</group>
                 	<group>
-                		<field name="line_ids">
-                			<tree>
-                				<field name="partner_id"/>
-                				<field name="requested_amt"/>
-                				<field name="sanctioned_amt"/>
-                				<field name="state"/>
-                			</tree>
-                		</field>
+                		<notebook>
+                			<page string='Lines' name="lines">
+		                		<field name="payment_ids" nolabel="1"  context="{'default_partner_type': 'supplier','default_payment_type': 'outbound',
+		                			'default_journal_id': False, 'default_generated_from_proposal': True,'default_proposal_state':state}">
+		                			<tree editable="bottom">
+		                				<field name="partner_id" required="1" attrs="{'readonly': ['|',('proposal_state','!=','draft'),('state','!=','draft')]}"/>
+		                				<field name="company_id" groups="base.group_multi_company" invisible="1" attrs="{'readonly': ['|',('proposal_state','!=','draft'),('state','!=','draft')]}"/>
+		                				<field name="partner_type" string="Partner Type" required="1" invisible="1"/>
+		                				<field name="payment_type" string="Amount Type" required="1" invisible="1"/>
+		                				<field name="journal_id" attrs="{'readonly': ['|',('proposal_state','!=','draft'),('state','!=','draft')]}"/>
+		                				<field name="hide_payment_method" invisible="1"/>
+		                				<field name="payment_method_id" invisible="1"/>
+		                				<field name="generated_from_proposal" invisible="1"/>
+		                				<field name="requested_amt" string="Req Amt" attrs="{'readonly': ['|',('proposal_state','!=','draft'),('state','!=','draft')]}"/>
+		                				<field name="approved_amt" string="Approved Amt" attrs="{'readonly': ['|',('proposal_state','!=','submit'),('state','!=','draft')]}"/>
+		                				<field name="amount" invisible="1"/>
+		                				<button type="object" name="action_approve" string="Approve" icon="fa-check" class="btn-link" attrs="{'invisible': ['|',('proposal_state','!=','submit'),('state','!=','draft')]}"/>
+		                				<button type="object" name="action_decline" string="Decline" icon="fa-times" class="btn-link" attrs="{'invisible': ['|',('proposal_state','!=','submit'),('state','!=','draft')]}"/>
+		                				<button type="object" name="post" string="Confirm" icon="fa-check-square" class="btn-link" attrs="{'invisible': ['|',('proposal_state','!=','approve'),('state','!=','approve')]}"/>
+		                				<field name="state"/>
+		                				<field name="proposal_state" invisible="1"/>
+		                			</tree>
+		                		</field>
+		                	</page>
+		                </notebook>
                 	</group>
                 </sheet>
         	</form>
