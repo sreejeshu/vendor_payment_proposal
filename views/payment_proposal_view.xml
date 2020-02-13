@@ -87,7 +87,7 @@
 	<!-- Top menu item -->
     <menuitem id="menu_root_payment_proposal" name="Payment Proposal" parent="account.menu_finance" sequence="3" groups="account.group_account_user"/>
 
-    <menuitem id="menu_payment_proposal" action="action_view_payment_proposal" name="Payment Proposal" parent="account.menu_finance" sequence="3" groups="account.group_account_user"/>
+    <menuitem id="menu_payment_proposal" action="action_view_payment_proposal" name="Vendor Payment Proposal" parent="menu_root_payment_proposal" sequence="3" groups="account.group_account_user"/>
 
 	
 </odoo>
