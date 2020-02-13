@@ -8,7 +8,7 @@
         		<header>
                     <button name="action_submit" states="draft" type="object" class="oe_highlight" string="Submit"/>
                     <button name="action_approve" states="submitted" type="object" class="oe_highlight" string="Approve"/>
-                    <button name="action_cancel" states="submitted,approved" type="object" class="oe_highlight" string="Cancel"/>
+                    <button name="action_cancel" states="submitted" type="object" class="oe_highlight" string="Cancel" groups="account.group_account_manager"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,paid"/>
                 </header>
                 <sheet>
@@ -30,7 +30,7 @@
                 		<notebook>
                 			<page string='Lines' name="lines">
 		                		<field name="line_ids" nolabel="1"  context="{'default_proposal_state':'draft',
-		                			'default_company_id':company_id}">
+		                			'default_company_id':company_id}" attrs="{'readonly': [('state','in',['paid','cancelled'])]}">
 		                			<tree editable="bottom">
 		                				<field name="partner_id" required="1" attrs="{'readonly': ['|',('proposal_state','!=','draft'),('state','!=','draft')]}"/>
 		                				<field name="company_id" groups="base.group_multi_company" attrs="{'readonly': ['|',('proposal_state','!=','draft'),('state','!=','draft')]}" invisible="1"/>
@@ -40,9 +40,9 @@
 		                				<field name="payment_id" readonly="1"/>
 		                				<field name="requested_amt" string="Req Amt" attrs="{'readonly': ['|',('proposal_state','!=','draft'),('state','!=','draft')]}"/>
 		                				<field name="approved_amt" string="Approved Amt" attrs="{'readonly': ['|',('proposal_state','!=','submitted'),('state','!=','draft')]}"/>
-		                				<button type="object" name="action_approve" string="Approve" icon="fa-check" class="btn-link" attrs="{'invisible': ['|',('proposal_state','!=','submitted'),('state','!=','draft')]}"/>
-		                				<button type="object" name="action_decline" string="Decline" icon="fa-times" class="btn-link" attrs="{'invisible': ['|',('proposal_state','!=','submitted'),('state','!=','draft')]}"/>
-		                				<button type="object" name="action_paid" string="Paid" icon="fa-check-square" class="btn-link" attrs="{'invisible': ['|',('proposal_state','!=','approved'),('state','!=','approved')]}"/>
+		                				<button type="object" name="action_approve" string="Approve" icon="fa-check" class="btn-link" attrs="{'invisible': ['|',('proposal_state','!=','submitted'),('state','!=','draft')]}" groups="account.group_account_manager"/>
+		                				<button type="object" name="action_decline" string="Decline" icon="fa-times" class="btn-link" attrs="{'invisible': ['|',('proposal_state','!=','submitted'),('state','!=','draft')]}" groups="account.group_account_manager"/>
+		                				<button type="object" name="action_paid" string="Mark as Paid" icon="fa-check-square" class="btn-link" attrs="{'invisible': ['|',('proposal_state','!=','approved'),('state','!=','approved')]}"/>
 		                				<field name="state"/>
 		                				<field name="proposal_state" invisible="1"/>
 		                			</tree>
@@ -51,6 +51,11 @@
 		                </notebook>
                 	</group>
                 </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" groups="base.group_user"/>
+                    <field name="activity_ids" widget="mail_activity"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
         	</form>
         </field>
     </record>

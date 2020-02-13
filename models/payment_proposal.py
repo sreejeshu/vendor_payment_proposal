@@ -6,24 +6,27 @@ import datetime
 
 class PaymentProposal(models.Model):
 	_name = 'payment.proposal'
+	_inherit = ['mail.thread', 'mail.activity.mixin']
+	_order = 'date desc'
 
 	READONLY_STATES = {
 		'submitted': [('readonly', True)],
 		'approved': [('readonly', True)],
+		'declined': [('readonly', True)],
 		'paid': [('readonly', True)],
-		'cancel': [('readonly', True)],
+		'cancelled': [('readonly', True)],
 	}
 
 	name = fields.Char('Name', required=True, index=True, copy=False, default='New')
-	date = fields.Date(required=True, states=READONLY_STATES, index=True, copy=False, default=fields.Date.context_today)
-	user_id = fields.Many2one('res.users', 'Responsible', states=READONLY_STATES, default=lambda self: self.env.user)
+	date = fields.Date(required=True, states=READONLY_STATES, index=True, copy=False, default=fields.Date.context_today, tracking=True)
+	user_id = fields.Many2one('res.users', 'Responsible', states=READONLY_STATES, default=lambda self: self.env.user, tracking=True)
 	approved_user_id = fields.Many2one('res.users', 'Approved User', readonly=True)
 	approved_date = fields.Date('Approved Date', readonly=True)
-	line_ids = fields.One2many('payment.proposal.line', 'proposal_id', 'Lines')
+	line_ids = fields.One2many('payment.proposal.line', 'proposal_id', 'Lines', tracking=True)
 	# payment_ids = fields.One2many('account.payment', 'proposal_id', 'Payment Lines')
 	state = fields.Selection([('draft', 'New'), ('submitted', 'Submitted'),
-							('approved', 'Approved'),('paid', 'Paid'),('cancelled', 'Cancelled')], string='Status', required=True, readonly=True, copy=False, default='draft')
-	company_id = fields.Many2one('res.company', string='Company', index=True, default=lambda self: self.env.company.id)
+							('approved', 'Approved'),('approved', 'Approved'),('paid', 'Paid'),('cancelled', 'Cancelled')], string='Status', required=True, readonly=True, copy=False, default='draft', tracking=True)
+	company_id = fields.Many2one('res.company', string='Company', states=READONLY_STATES, index=True, default=lambda self: self.env.company.id, tracking=True)
 
 	@api.model
 	def create(self, vals):
@@ -33,6 +36,11 @@ class PaymentProposal(models.Model):
 				seq_date = fields.Datetime.context_timestamp(self, fields.Datetime.to_datetime(vals['date']))
 			vals['name'] = self.env['ir.sequence'].next_by_code('payment.proposal', sequence_date=seq_date) or '/'
 		return super(PaymentProposal, self).create(vals)
+
+	def unlink(self):
+		if self.state in ['approved','paid']:
+			raise UserError(_("Cant delete records in Approved or Paid states"))
+		return super(PaymentProposal, self).unlink()
 
 
 	def action_submit(self):
@@ -112,6 +120,26 @@ class PaymentProposalLine(models.Model):
 			payment = self.env['account.payment'].create(values)
 			line.write({'payment_id':payment.id})
 			payment.post()
+
+	def check_all(self,state):
+		if state == 'draft':
+			self.proposal_id.write({'state':'submitted'})
+			return True
+		if len(self.proposal_id.line_ids.filtered(lambda x: x.id != self.id and x.state == state)) == (len(self.proposal_id.line_ids)-1):
+			if state == 'posted':
+				self.proposal_id.write({'state':'paid'})
+				return True
+			self.proposal_id.write({'state':state})
+		self.env['payment.proposal.line'].search([('proposal_id','=',self.proposal_id.id)])
+
+
+	def write(self, vals):
+		states = ['posted','declined','draft','cancelled']
+		new_state = vals.get('state')
+		if new_state in states:
+			self.check_all(new_state)
+		res = super(PaymentProposalLine, self).write(vals)
+		
 
 
 
