@@ -23,8 +23,4 @@
         'data/ir_sequence_data.xml',
         'views/payment_proposal_view.xml',
     ],
-    # only loaded in demonstration mode
-    'demo': [
-        'demo/demo.xml',
-    ],
 }
